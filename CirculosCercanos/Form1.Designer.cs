@@ -33,9 +33,10 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBoxImage = new System.Windows.Forms.PictureBox();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.labelPixelInfo = new System.Windows.Forms.Label();
+            this.circlesListBox = new System.Windows.Forms.ListBox();
             this.miniToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize) (this.pictureBoxImage)).BeginInit();
             this.SuspendLayout();
@@ -43,13 +44,12 @@
             // miniToolStrip
             // 
             this.miniToolStrip.AutoSize = false;
-            this.miniToolStrip.Dock = System.Windows.Forms.DockStyle.None;
-            this.miniToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.fileToolStripMenuItem});
+            this.miniToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.fileToolStripMenuItem, this.runToolStripMenuItem});
             this.miniToolStrip.Location = new System.Drawing.Point(0, 0);
             this.miniToolStrip.Name = "miniToolStrip";
-            this.miniToolStrip.Size = new System.Drawing.Size(1147, 24);
+            this.miniToolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+            this.miniToolStrip.Size = new System.Drawing.Size(1084, 24);
             this.miniToolStrip.TabIndex = 0;
-            this.miniToolStrip.Visible = false;
             // 
             // fileToolStripMenuItem
             // 
@@ -71,11 +71,18 @@
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.saveToolStripMenuItem.Text = "Save";
             // 
+            // runToolStripMenuItem
+            // 
+            this.runToolStripMenuItem.Name = "runToolStripMenuItem";
+            this.runToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
+            this.runToolStripMenuItem.Text = "Run";
+            this.runToolStripMenuItem.Click += new System.EventHandler(this.runToolStripMenuItem_Click);
+            // 
             // pictureBoxImage
             // 
-            this.pictureBoxImage.Location = new System.Drawing.Point(3, 34);
+            this.pictureBoxImage.Location = new System.Drawing.Point(12, 27);
             this.pictureBoxImage.Name = "pictureBoxImage";
-            this.pictureBoxImage.Size = new System.Drawing.Size(800, 500);
+            this.pictureBoxImage.Size = new System.Drawing.Size(800, 494);
             this.pictureBoxImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBoxImage.TabIndex = 1;
             this.pictureBoxImage.TabStop = false;
@@ -84,12 +91,15 @@
             // 
             this.openFileDialog.FileName = "openFileDialog1";
             // 
-            // labelPixelInfo
+            // circlesListBox
             // 
-            this.labelPixelInfo.Location = new System.Drawing.Point(12, 391);
-            this.labelPixelInfo.Name = "labelPixelInfo";
-            this.labelPixelInfo.Size = new System.Drawing.Size(375, 26);
-            this.labelPixelInfo.TabIndex = 2;
+            this.circlesListBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
+            this.circlesListBox.FormattingEnabled = true;
+            this.circlesListBox.ItemHeight = 16;
+            this.circlesListBox.Location = new System.Drawing.Point(818, 23);
+            this.circlesListBox.Name = "circlesListBox";
+            this.circlesListBox.Size = new System.Drawing.Size(246, 484);
+            this.circlesListBox.TabIndex = 2;
             // 
             // Form1
             // 
@@ -97,7 +107,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1084, 535);
-            this.Controls.Add(this.labelPixelInfo);
+            this.Controls.Add(this.circlesListBox);
             this.Controls.Add(this.pictureBoxImage);
             this.Controls.Add(this.miniToolStrip);
             this.HelpButton = true;
@@ -109,7 +119,9 @@
             this.ResumeLayout(false);
         }
 
-        private System.Windows.Forms.Label labelPixelInfo;
+        private System.Windows.Forms.ListBox circlesListBox;
+
+        private System.Windows.Forms.ToolStripMenuItem runToolStripMenuItem;
 
         private System.Windows.Forms.OpenFileDialog openFileDialog;
 
