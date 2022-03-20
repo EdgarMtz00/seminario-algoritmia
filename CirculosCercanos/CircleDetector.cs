@@ -7,18 +7,24 @@ namespace CirculosCercanos
     public class CircleDetector
     {
         private Bitmap _bmp;
+        private Bitmap _animationBmp;
 
         private Graphics _graphics;
+        private Graphics _animationGraphics;
         
         private Brush _brush = new SolidBrush(Color.Red);
         private Pen _pen = new Pen(Color.Chartreuse);
+        private Pen _edgePen = new Pen(Color.Tomato);
+        private Brush _agentBrush = new SolidBrush(Color.Goldenrod);
 
         private List<Circle> _circlesList = new List<Circle>();
 
-        public CircleDetector(Bitmap bmp, String filename)
+        public CircleDetector(Bitmap bmp, Bitmap animationBmp, String filename)
         {
             this._bmp = new Bitmap(filename);
+            this._animationBmp = animationBmp;
             this._graphics = Graphics.FromImage(bmp);
+            this._animationGraphics = Graphics.FromImage(_animationBmp);
         }
 
         public List<Circle> CircleSearch()
@@ -27,12 +33,12 @@ namespace CirculosCercanos
             {
                 for (int x = 0; x < _bmp.Width; x++)
                 {
-                    if (!isWhite(_bmp.GetPixel(x, y)))
+                    if (isBlack(_bmp.GetPixel(x, y)))
                     {
                         bool isNewCircle = true;
                         foreach (Circle circle in _circlesList)
                         {
-                            if (Math.Pow(x - circle.X, 2) + Math.Pow(y - circle.Y, 2) <= Math.Pow(circle.R + 3, 2))
+                            if (PointBelongsToCircle(x, y, circle))
                             {
                                 isNewCircle = false;
                             }
@@ -46,10 +52,9 @@ namespace CirculosCercanos
                     }
                 }
             }
-            DrawClosestPairPointsLine();
             return _circlesList;
         }
-
+ 
         private void SearchAndMarkCenter(int x, int y)
         {
             int y0 = y;
@@ -66,47 +71,47 @@ namespace CirculosCercanos
                 x++;
             int xCenter = (x0 + x) / 2;
 
-            int r = Math.Abs(y - yCenter);
+            int r = Math.Abs(y - yCenter) + 5;
             
             _circlesList.Add(new Circle(xCenter, yCenter, r, _circlesList.Count + 1));
-            Font font = new Font(FontFamily.GenericSansSerif, r / 2 == 0 ? 1 : r/2);
+            Font font = new Font(FontFamily.GenericSansSerif, r/2);
             _graphics.DrawString(_circlesList.Count.ToString(), font, _brush, xCenter, yCenter);
             _graphics.DrawLine(_pen, xCenter - r/4, yCenter, xCenter + r/4, yCenter);
             _graphics.DrawLine(_pen, xCenter, yCenter - r/4, xCenter, yCenter + r/4);
         }
 
-        private void DrawClosestPairPointsLine()
+        public void DrawEdges()
         {
-            Tuple<Circle, Circle> closestPairPoint = null;
-            double minDistance = Double.MaxValue;
-            foreach (Circle c1 in _circlesList)
+            for (int i = 0; i < _circlesList.Count; i++)
             {
-                foreach (Circle c2 in _circlesList)
+                Circle circle1 = _circlesList[i];
+                foreach (Circle circle2 in circle1.Adjacents)
                 {
-                    if (c1 != c2)
-                    {
-                        double distance = Math.Sqrt(Math.Pow(c2.X - c1.X, 2) + Math.Pow(c2.Y - c1.Y, 2)); 
-                        if (minDistance > distance)
-                        {
-                            minDistance = distance;
-                            closestPairPoint = Tuple.Create(c1, c2);
-                        }
-                    }
+                    _graphics.DrawLine(_edgePen, circle1.X, circle1.Y, circle2.X, circle2.Y);
                 }
-            }
-
-            if (closestPairPoint != null)
-            {
-                Circle item1 = closestPairPoint.Item1;
-                Circle item2 = closestPairPoint.Item2;
-            
-                _graphics.DrawLine(_pen, item1.X, item1.Y, item2.X, item2.Y);
             }
         }
 
         private bool isWhite(Color color)
         {
             return color.R == 255 && color.G == 255 && color.B == 255;
+        }
+
+        
+        private bool isBlack(Color color)
+        {
+            return color.R == 0 && color.G == 0 && color.B == 0;
+        }
+        
+        private bool PointBelongsToCircle(int x, int y, Circle circle)
+        {
+            return Math.Pow(x - circle.X, 2) + Math.Pow(y - circle.Y, 2) <= Math.Pow(circle.R + 3, 2);
+        }
+
+        public void DrawAgent(Point point)
+        {
+            _animationGraphics.Clear(Color.Transparent);
+            _animationGraphics.FillEllipse(_agentBrush, point.X-25, point.Y-25, 50, 50);
         }
     }
 }

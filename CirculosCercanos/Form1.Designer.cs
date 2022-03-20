@@ -36,7 +36,10 @@
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBoxImage = new System.Windows.Forms.PictureBox();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.circlesListBox = new System.Windows.Forms.ListBox();
+            this.btnAgente = new System.Windows.Forms.Button();
+            this.btnDestino = new System.Windows.Forms.Button();
+            this.circleTree = new System.Windows.Forms.TreeView();
+            this.infoLabel = new System.Windows.Forms.Label();
             this.miniToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize) (this.pictureBoxImage)).BeginInit();
             this.SuspendLayout();
@@ -48,7 +51,7 @@
             this.miniToolStrip.Location = new System.Drawing.Point(0, 0);
             this.miniToolStrip.Name = "miniToolStrip";
             this.miniToolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.miniToolStrip.Size = new System.Drawing.Size(1084, 24);
+            this.miniToolStrip.Size = new System.Drawing.Size(1430, 24);
             this.miniToolStrip.TabIndex = 0;
             // 
             // fileToolStripMenuItem
@@ -82,7 +85,7 @@
             // 
             this.pictureBoxImage.Location = new System.Drawing.Point(12, 27);
             this.pictureBoxImage.Name = "pictureBoxImage";
-            this.pictureBoxImage.Size = new System.Drawing.Size(800, 494);
+            this.pictureBoxImage.Size = new System.Drawing.Size(1104, 793);
             this.pictureBoxImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBoxImage.TabIndex = 1;
             this.pictureBoxImage.TabStop = false;
@@ -91,23 +94,55 @@
             // 
             this.openFileDialog.FileName = "openFileDialog1";
             // 
-            // circlesListBox
+            // btnAgente
             // 
-            this.circlesListBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
-            this.circlesListBox.FormattingEnabled = true;
-            this.circlesListBox.ItemHeight = 16;
-            this.circlesListBox.Location = new System.Drawing.Point(818, 23);
-            this.circlesListBox.Name = "circlesListBox";
-            this.circlesListBox.Size = new System.Drawing.Size(246, 484);
-            this.circlesListBox.TabIndex = 2;
+            this.btnAgente.Enabled = false;
+            this.btnAgente.Location = new System.Drawing.Point(1122, 800);
+            this.btnAgente.Name = "btnAgente";
+            this.btnAgente.Size = new System.Drawing.Size(141, 34);
+            this.btnAgente.TabIndex = 3;
+            this.btnAgente.Text = "Agente";
+            this.btnAgente.UseVisualStyleBackColor = true;
+            this.btnAgente.Click += new System.EventHandler(this.btnAgente_Click);
+            // 
+            // btnDestino
+            // 
+            this.btnDestino.Enabled = false;
+            this.btnDestino.Location = new System.Drawing.Point(1277, 800);
+            this.btnDestino.Name = "btnDestino";
+            this.btnDestino.Size = new System.Drawing.Size(141, 34);
+            this.btnDestino.TabIndex = 4;
+            this.btnDestino.Text = "Destino";
+            this.btnDestino.UseVisualStyleBackColor = true;
+            this.btnDestino.Click += new System.EventHandler(this.btnDestino_Click);
+            // 
+            // circleTree
+            // 
+            this.circleTree.Location = new System.Drawing.Point(1122, 27);
+            this.circleTree.Name = "circleTree";
+            this.circleTree.Size = new System.Drawing.Size(296, 767);
+            this.circleTree.TabIndex = 5;
+            this.circleTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.circleTree_AfterSelect);
+            // 
+            // infoLabel
+            // 
+            this.infoLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
+            this.infoLabel.Location = new System.Drawing.Point(12, 823);
+            this.infoLabel.Name = "infoLabel";
+            this.infoLabel.Size = new System.Drawing.Size(1104, 23);
+            this.infoLabel.TabIndex = 6;
+            this.infoLabel.Text = "Abre una imagen en la pestaña \"File\"";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1084, 535);
-            this.Controls.Add(this.circlesListBox);
+            this.ClientSize = new System.Drawing.Size(1430, 846);
+            this.Controls.Add(this.infoLabel);
+            this.Controls.Add(this.circleTree);
+            this.Controls.Add(this.btnDestino);
+            this.Controls.Add(this.btnAgente);
             this.Controls.Add(this.pictureBoxImage);
             this.Controls.Add(this.miniToolStrip);
             this.HelpButton = true;
@@ -119,7 +154,12 @@
             this.ResumeLayout(false);
         }
 
-        private System.Windows.Forms.ListBox circlesListBox;
+        private System.Windows.Forms.Label infoLabel;
+
+        private System.Windows.Forms.TreeView circleTree;
+
+        private System.Windows.Forms.Button btnAgente;
+        private System.Windows.Forms.Button btnDestino;
 
         private System.Windows.Forms.ToolStripMenuItem runToolStripMenuItem;
 
