@@ -10,7 +10,8 @@ namespace CirculosCercanos
     {
         private List<Circle> _circles;
         private Bitmap _bitmap;
-        private bool _outsideFlag = false;
+        private bool _outsideFlag;
+        private static Random rng = new Random();
 
         public CircleGraph(List<Circle> circles, String filename)
         {
@@ -29,10 +30,37 @@ namespace CirculosCercanos
             }
         }
 
+        public List<Circle> BFS(Circle start)
+        {
+            Reset();
+            LinkedList<TreeNode> queue = new LinkedList<TreeNode>();
+            start.Visited = true;
+
+            Tree tree = new Tree(start);
+            queue.AddLast(tree.Root);
+            while (queue.Any())
+            {
+                TreeNode node = queue.First();
+                queue.RemoveFirst();
+                foreach (Circle adjacent in node.C.Adjacents)
+                {
+                    if (!adjacent.Visited)
+                    {
+                        adjacent.Visited = true;
+                        TreeNode son = node.AddSon(adjacent);
+                        queue.AddLast(son);
+                    }
+                }
+            }
+            Reset();
+            return tree.DFS(tree.Root);
+        }
+
         List<Circle> DFS(Circle circle)
         {
             circle.Visited = true;
-            foreach (Circle circleAdjacent in circle.Adjacents)
+            List<Circle> randomOrder = circle.Adjacents.OrderBy(a => rng.Next()).ToList();
+            foreach (Circle circleAdjacent in randomOrder)
             {
                 if (circleAdjacent.IsDestination)
                 {

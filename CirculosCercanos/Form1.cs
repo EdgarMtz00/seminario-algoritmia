@@ -86,6 +86,7 @@ namespace CirculosCercanos
         {
             if (_indexAgente != -1 && _indexDestino != -1 && _detector != null)
             {
+                Circle inicio = null;
                 Circle agente = null;
                 List<Circle> destinationList = _graph.FindDestination();
                 if (destinationList == null)
@@ -98,6 +99,7 @@ namespace CirculosCercanos
                     if (agente == null)
                     {
                         agente = nextInPath;
+                        inicio = nextInPath;
                     }
                     else
                     {
@@ -112,6 +114,12 @@ namespace CirculosCercanos
                     }
                 }
 
+
+                List<Circle> shortestPath = _graph.BFS(inicio);
+                shortestPath.Add(inicio);
+                shortestPath.Reverse();
+                _detector.DrawGoldenEdges(shortestPath);
+                pictureBoxImage.Refresh();
                 _graph.Reset();
             }
         }

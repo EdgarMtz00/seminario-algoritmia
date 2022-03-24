@@ -16,6 +16,7 @@ namespace CirculosCercanos
         private Pen _pen = new Pen(Color.Chartreuse);
         private Pen _edgePen = new Pen(Color.Tomato);
         private Brush _agentBrush = new SolidBrush(Color.Goldenrod);
+        private Pen _goldenEdgePen = new Pen(Color.Gold, 3);
 
         private List<Circle> _circlesList = new List<Circle>();
 
@@ -89,6 +90,16 @@ namespace CirculosCercanos
                 {
                     _graphics.DrawLine(_edgePen, circle1.X, circle1.Y, circle2.X, circle2.Y);
                 }
+            }
+
+        }
+
+        public void DrawGoldenEdges(List<Circle> edges)
+        {
+            DrawEdges();
+            for (int i = 1; i < edges.Count; i++)
+            {
+                _graphics.DrawLine(_goldenEdgePen, edges[i-1].X, edges[i-1].Y, edges[i].X, edges[i].Y);
             }
         }
 
