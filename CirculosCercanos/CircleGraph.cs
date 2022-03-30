@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace CirculosCercanos
 {
     public class CircleGraph
     {
-        private List<Circle> _circles;
-        private Bitmap _bitmap;
+        private readonly List<Circle> _circles;
+        private readonly Bitmap _bitmap;
         private bool _outsideFlag;
-        private static Random rng = new Random();
+        private static readonly Random Rng = new Random();
 
         public CircleGraph(List<Circle> circles, String filename)
         {
@@ -30,7 +29,7 @@ namespace CirculosCercanos
             }
         }
 
-        public List<Circle> BFS(Circle start)
+        public List<Circle> Bfs(Circle start)
         {
             Reset();
             LinkedList<TreeNode> queue = new LinkedList<TreeNode>();
@@ -49,28 +48,31 @@ namespace CirculosCercanos
                         adjacent.Visited = true;
                         TreeNode son = node.AddSon(adjacent);
                         queue.AddLast(son);
+                        if (adjacent.IsDestination)
+                        {
+                            return son.ListFathers();
+                        }
                     }
                 }
             }
-            Reset();
-            return tree.DFS(tree.Root);
+
+            return null;
         }
 
-        List<Circle> DFS(Circle circle)
+        private static List<Circle> Dfs(Circle circle)
         {
             circle.Visited = true;
-            List<Circle> randomOrder = circle.Adjacents.OrderBy(a => rng.Next()).ToList();
+            List<Circle> randomOrder = circle.Adjacents.OrderBy(a => Rng.Next()).ToList();
             foreach (Circle circleAdjacent in randomOrder)
             {
                 if (circleAdjacent.IsDestination)
                 {
-                    List<Circle> res = new List<Circle>();
-                    res.Add(circleAdjacent);
+                    List<Circle> res = new List<Circle> {circleAdjacent};
                     return res;
                 }
                 if (!circleAdjacent.Visited)
                 {
-                    List<Circle> possibleRes = DFS(circleAdjacent);
+                    List<Circle> possibleRes = Dfs(circleAdjacent);
 
                     if (possibleRes != null)
                     {
@@ -85,6 +87,7 @@ namespace CirculosCercanos
 
         public List<Circle> FindDestination()
         {
+            Reset();
             Circle agent = null;
             foreach (Circle circle in _circles)
             {
@@ -96,7 +99,7 @@ namespace CirculosCercanos
 
             if (agent != null)
             {
-                List<Circle> res = DFS(agent);
+                List<Circle> res = Dfs(agent);
                 if (res != null)
                 {
                     res.Add(agent);
@@ -150,15 +153,15 @@ namespace CirculosCercanos
                 
                 increment = origin.X < destination.X ? 1 : -1;
                 
-                while(!PointBelongsToCircle(x, y, destination) && !PointIsObstacle(x, y))
+                while(!PointIsObstacle(x, y))
                 {
                     x += increment;
-                    y = (int) Math.Round(m * (x - origin.X) + b);;
+                    y = (int) Math.Round(m * (x - origin.X) + b);
                     path.Add(new Point(x, y));
                 }
             }
 
-            if (!PointIsObstacle(x, y))
+            if (PointBelongsToCircle(x, y, destination))
             {
                 List<Point> reversedPath = new List<Point>();
                 foreach (Point point in path.AsEnumerable().Reverse())

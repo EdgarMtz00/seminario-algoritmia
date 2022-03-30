@@ -10,34 +10,6 @@ namespace CirculosCercanos
         {
             Root = new TreeNode(root, null);
         }
-
-
-        public List<Circle> DFS(TreeNode father)
-        {
-            father.C.Visited = true;
-            foreach (TreeNode son in father.Sons)
-            {
-                if (son.C.IsDestination)
-                {
-                    List<Circle> res = new List<Circle>();
-                    res.Add(son.C);
-                    return res;
-                }
-                if (!son.C.Visited)
-                {
-                    List<Circle> possibleRes = DFS(son);
-
-                    if (possibleRes != null)
-                    {
-                        possibleRes.Add(son.C);
-                        return possibleRes;
-                    }
-                }
-            }
-
-            return null;
-        }
-
     }
 
     public class TreeNode
@@ -60,5 +32,17 @@ namespace CirculosCercanos
             return son;
         }
         
+        public List<Circle> ListFathers()
+        {
+            TreeNode t = this;
+            List<Circle> result = new List<Circle>() {t.C};
+            while (t._father != null)
+            {
+                t = t._father;
+                result.Add(t.C);
+            }
+
+            return result;
+        }
     }
 }

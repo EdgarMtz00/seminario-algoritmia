@@ -7,7 +7,6 @@ namespace CirculosCercanos
     public class CircleDetector
     {
         private Bitmap _bmp;
-        private Bitmap _animationBmp;
 
         private Graphics _graphics;
         private Graphics _animationGraphics;
@@ -16,16 +15,15 @@ namespace CirculosCercanos
         private Pen _pen = new Pen(Color.Chartreuse);
         private Pen _edgePen = new Pen(Color.Tomato);
         private Brush _agentBrush = new SolidBrush(Color.Goldenrod);
-        private Pen _goldenEdgePen = new Pen(Color.Gold, 3);
+        private Pen _goldenEdgePen = new Pen(Color.Gold);
 
         private List<Circle> _circlesList = new List<Circle>();
 
         public CircleDetector(Bitmap bmp, Bitmap animationBmp, String filename)
         {
             this._bmp = new Bitmap(filename);
-            this._animationBmp = animationBmp;
             this._graphics = Graphics.FromImage(bmp);
-            this._animationGraphics = Graphics.FromImage(_animationBmp);
+            this._animationGraphics = Graphics.FromImage(animationBmp);
         }
 
         public List<Circle> CircleSearch()

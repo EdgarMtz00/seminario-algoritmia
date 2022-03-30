@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace CirculosCercanos
@@ -15,7 +14,7 @@ namespace CirculosCercanos
         private int _selectedIndex;
         private int _indexAgente = -1;
         private int _indexDestino = -1;
-        private bool secondRun = false;
+        private bool _secondRun;
         
         public Form1()
         {
@@ -35,20 +34,20 @@ namespace CirculosCercanos
             infoLabel.Text = "Haga click en la pestaña run para encontrar los circulos";
             _indexAgente = -1;
             _indexDestino = -1;
-            secondRun = false;
+            _secondRun = false;
             circleTree.Nodes.Clear();
         }
 
         private void runToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!secondRun)
+            if (!_secondRun)
             {
                 SearchCircles();
-                secondRun = true;
+                _secondRun = true;
             }
             else
             {
-                runAnimation();
+                RunAnimation();
             }
             
         }
@@ -82,7 +81,7 @@ namespace CirculosCercanos
             }
         }
 
-        private void runAnimation()
+        private void RunAnimation()
         {
             if (_indexAgente != -1 && _indexDestino != -1 && _detector != null)
             {
@@ -115,12 +114,9 @@ namespace CirculosCercanos
                 }
 
 
-                List<Circle> shortestPath = _graph.BFS(inicio);
-                shortestPath.Add(inicio);
-                shortestPath.Reverse();
+                List<Circle> shortestPath = _graph.Bfs(inicio);
                 _detector.DrawGoldenEdges(shortestPath);
                 pictureBoxImage.Refresh();
-                _graph.Reset();
             }
         }
 
