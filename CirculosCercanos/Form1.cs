@@ -88,6 +88,7 @@ namespace CirculosCercanos
                 Circle inicio = null;
                 Circle agente = null;
                 List<Circle> destinationList = _graph.FindDestination();
+                destinationList = _graph.animationList;
                 if (destinationList == null)
                 {
                     infoLabel.Text = "No Existe un camino entre esos dos circulos"; 
@@ -117,6 +118,7 @@ namespace CirculosCercanos
                 List<Circle> shortestPath = _graph.Bfs(inicio);
                 _detector.DrawGoldenEdges(shortestPath);
                 pictureBoxImage.Refresh();
+                _graph.animationList.Clear();
             }
         }
 

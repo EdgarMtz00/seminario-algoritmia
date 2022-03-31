@@ -11,6 +11,7 @@ namespace CirculosCercanos
         private readonly Bitmap _bitmap;
         private bool _outsideFlag;
         private static readonly Random Rng = new Random();
+        public List<Circle> animationList = new List<Circle>();
 
         public CircleGraph(List<Circle> circles, String filename)
         {
@@ -59,25 +60,30 @@ namespace CirculosCercanos
             return null;
         }
 
-        private static List<Circle> Dfs(Circle circle)
+        private List<Circle> Dfs(Circle circle)
         {
+            animationList.Add(circle);
             circle.Visited = true;
             List<Circle> randomOrder = circle.Adjacents.OrderBy(a => Rng.Next()).ToList();
             foreach (Circle circleAdjacent in randomOrder)
             {
                 if (circleAdjacent.IsDestination)
                 {
+                    animationList.Add(circleAdjacent);
                     List<Circle> res = new List<Circle> {circleAdjacent};
                     return res;
                 }
                 if (!circleAdjacent.Visited)
                 {
                     List<Circle> possibleRes = Dfs(circleAdjacent);
-
                     if (possibleRes != null)
                     {
                         possibleRes.Add(circleAdjacent);
                         return possibleRes;
+                    }
+                    else
+                    {
+                        animationList.Add(circle);
                     }
                 }
             }
@@ -137,7 +143,7 @@ namespace CirculosCercanos
                 
                 increment = (origin.Y < destination.Y) ? 1 : -1;
                 
-                while (!PointBelongsToCircle(x, y, destination) && !PointIsObstacle(x, y))
+                while (!PointIsObstacle(x, y))
                 {
                     y+= increment;
                     x = (int) Math.Round(m * (y - origin.Y) + b);
