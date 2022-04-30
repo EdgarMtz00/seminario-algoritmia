@@ -12,6 +12,10 @@ namespace CirculosCercanos
         private bool _outsideFlag;
         private static readonly Random Rng = new Random();
         public List<Circle> animationList = new List<Circle>();
+        public Circle destination;
+
+        private Pen kruskalPen = new Pen(Color.DarkBlue, 15);
+        private Pen primPen = new Pen(Color.Green, 7);
 
         public CircleGraph(List<Circle> circles, String filename)
         {
@@ -23,7 +27,7 @@ namespace CirculosCercanos
                 {
                     if (CreatePath(circles[i], circles[j]))
                     {
-                        circles[i].Adjacents.Add(circles[j]); 
+                        circles[i].Adjacents.Add(circles[j]);
                         circles[j].Adjacents.Add(circles[i]);
                     }
                 }
@@ -63,8 +67,19 @@ namespace CirculosCercanos
         private List<Circle> Dfs(Circle circle)
         {
             animationList.Add(circle);
+            
             circle.Visited = true;
-            List<Circle> randomOrder = circle.Adjacents.OrderBy(a => Rng.Next()).ToList();
+            double lookingAngle = AngleBetweenPoints(circle.ToPoint(), destination.ToPoint());
+            List<Circle> randomOrder =
+                circle.Adjacents.OrderBy(a =>
+                {
+                    double angle = AngleBetweenPoints(circle.ToPoint(), a.ToPoint());
+                    if (Math.Abs(angle - lookingAngle) > 180)
+                    {
+                        return (180 - Math.Abs(angle)) + (180 - Math.Abs(lookingAngle));
+                    }
+                    return Math.Abs(angle - lookingAngle);
+                }).ToList();
             foreach (Circle circleAdjacent in randomOrder)
             {
                 if (circleAdjacent.IsDestination)
@@ -73,6 +88,7 @@ namespace CirculosCercanos
                     List<Circle> res = new List<Circle> {circleAdjacent};
                     return res;
                 }
+
                 if (!circleAdjacent.Visited)
                 {
                     List<Circle> possibleRes = Dfs(circleAdjacent);
@@ -81,19 +97,63 @@ namespace CirculosCercanos
                         possibleRes.Add(circleAdjacent);
                         return possibleRes;
                     }
-                    else
-                    {
-                        animationList.Add(circle);
-                    }
+
+                    animationList.Add(circle);
                 }
             }
 
             return null;
         }
+        
+        private double AngleBetweenPoints(Point a, Point b)
+        {
+            double res = Math.Atan2(b.Y - a.Y, b.X - a.X) * ( 180 / Math.PI );
+            return res;
+        }
+        
+        private int AngleBetweenCircles(Circle pivot, Circle c1, Circle c2)
+        {
+            if (c2.Visited)
+            {
+                return Int32.MaxValue;
+            }
+            float m1, m2;
+            if (Math.Abs(pivot.Y - c1.Y) > Math.Abs(pivot.X - c1.X))
+            {
+                m1 = (pivot.Y - c1.Y == 0)
+                    ? 0.0f
+                    : (float) (pivot.X - c1.X) / (pivot.Y - c1.Y);
+                m2 = (pivot.Y - c2.Y == 0)
+                    ? 0.0f
+                    : (float) (pivot.X - c2.X) / (pivot.Y - c2.Y);
+            }
+            else
+            {
+                m1 = (pivot.Y - c1.Y == 0)
+                    ? 0.0f
+                    : (float) (pivot.Y - c1.Y) / (pivot.X - c1.X);
+                m2 = (pivot.Y - c2.Y == 0)
+                    ? 0.0f
+                    : (float) (pivot.Y - c2.Y) / (pivot.X - c2.X);
+            }
 
-        public List<Circle> FindDestination()
+            if (m1 == m2)
+            {
+                return 0;
+            }
+
+            if (m1 * m2 == -1.0f)
+            {
+                return 90;
+            }
+
+            return (int) Math.Abs(Math.Atan((m1 - m2) / (1 + m1 * m2)) * ( 180 / Math.PI ));
+        }
+
+        public List<Circle> FindDestination(int indexDestination)
         {
             Reset();
+            destination = _circles[indexDestination];
             Circle agent = null;
             foreach (Circle circle in _circles)
             {
@@ -110,13 +170,171 @@ namespace CirculosCercanos
                 {
                     res.Add(agent);
                     res.Reverse();
-                    return res;  
+                    return res;
                 }
-
             }
 
             return null;
         }
+
+
+        private List<Circle> BfsArray(List<Circle> vertices)
+        {
+            List<Circle> result = new List<Circle>();
+
+            Queue<Circle> queue = new Queue<Circle>();
+            queue.Enqueue(vertices[0]);
+
+            while (queue.Any())
+            {
+                Circle next = queue.Dequeue();
+
+                foreach (Circle adjacent in next.Adjacents)
+                {
+                    if (!result.Contains(adjacent))
+                    {
+                        result.Add(adjacent);
+                        vertices.Remove(adjacent);
+                        queue.Enqueue(adjacent);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public void CreateTrees(Bitmap bmpImage)
+        {
+            Reset();
+            List<Circle> vertices = new List<Circle>(_circles);
+            Queue<List<Circle>> forest = new Queue<List<Circle>>();
+
+            while (vertices.Count > 0)
+            {
+                forest.Enqueue(BfsArray(vertices));
+            }
+
+
+            foreach (List<Circle> tree in forest)
+            {
+                Queue<Tuple<Circle, Circle>> kruskalCandidates = new Queue<Tuple<Circle, Circle>>();
+                foreach (Circle circle in forest.Count != 1 ? tree : _circles)
+                {
+                    foreach (Circle circleAdjacent in circle.Adjacents)
+                    {
+                        if (!circleAdjacent.Visited)
+                        {
+                            kruskalCandidates.Enqueue(new Tuple<Circle, Circle>(circle, circleAdjacent));
+                        }
+                    }
+
+                    circle.Visited = true;
+                }
+
+                List<Tuple<Circle, Circle>> primCandidates = new List<Tuple<Circle, Circle>>(kruskalCandidates);
+
+                Queue<Tuple<Circle, Circle>> kruskalMap = Kruskal(kruskalCandidates, tree.Count - 1);
+                Queue<Tuple<Circle, Circle>> primMap = Prim(primCandidates, tree.Count - 1);
+                drawEdges(kruskalMap, kruskalPen, bmpImage);
+                drawEdges(primMap, primPen, bmpImage);
+            }
+        }
+
+        private Queue<Tuple<Circle, Circle>> Prim(List<Tuple<Circle, Circle>> candidates, int n)
+        {
+            List<Tuple<Circle, Circle>> promising = new List<Tuple<Circle, Circle>>();
+            promising.Add(candidates[0]);
+            candidates.RemoveAt(0);
+
+            while (promising.Count != n)
+            {
+                Tuple<Circle, Circle> edge = PrimSelect(candidates, promising);
+
+                if (PrimCheck(edge, promising))
+                {
+                    promising.Add(edge);
+                }
+            }
+
+            return new Queue<Tuple<Circle, Circle>>(promising);
+        }
+
+        private bool PrimCheck(Tuple<Circle, Circle> edge, List<Tuple<Circle, Circle>> promising)
+        {
+            bool flagItem1 = false;
+            bool flagItem2 = false;
+
+            foreach (Tuple<Circle, Circle> tuple in promising)
+            {
+                if (edge.Item1 == tuple.Item1 || edge.Item1 == tuple.Item2)
+                {
+                    flagItem1 = true;
+                }
+
+                if (edge.Item2 == tuple.Item1 || edge.Item2 == tuple.Item2)
+                {
+                    flagItem2 = true;
+                }
+
+                if (flagItem1 & flagItem2)
+                {
+                    break;
+                }
+            }
+
+            return !(flagItem1 & flagItem2);
+        }
+
+        private Tuple<Circle, Circle> PrimSelect(List<Tuple<Circle, Circle>> candidates,
+            List<Tuple<Circle, Circle>> promising)
+        {
+            foreach (Tuple<Circle, Circle> edge in promising)
+            {
+                foreach (Tuple<Circle, Circle> candidate in candidates)
+                {
+                    if (edge.Item1 == candidate.Item1 || edge.Item1 == candidate.Item2 ||
+                        edge.Item2 == candidate.Item1 || edge.Item2 == candidate.Item2)
+                    {
+                        candidates.Remove(candidate);
+                        return candidate;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private Queue<Tuple<Circle, Circle>> Kruskal(Queue<Tuple<Circle, Circle>> candidates, int n)
+        {
+            Queue<Tuple<Circle, Circle>> result = new Queue<Tuple<Circle, Circle>>();
+            Subset[] CC = Subset.SubsetsForCollection(_circles);
+
+            while (result.Count != n)
+            {
+                Tuple<Circle, Circle> a_i = candidates.Dequeue();
+                int ind1 = Subset.Find(CC, a_i.Item1.Id);
+                int ind2 = Subset.Find(CC, a_i.Item2.Id);
+
+                if (ind1 != ind2)
+                {
+                    result.Enqueue(a_i);
+                    CC[ind1].Join(CC[ind2]);
+                    CC[ind2] = null;
+                }
+            }
+
+            return result;
+        }
+
+        public void drawEdges(Queue<Tuple<Circle, Circle>> edges, Pen pen, Bitmap bmpImage)
+        {
+            Graphics graphics = Graphics.FromImage(bmpImage);
+            foreach (var tuple in edges)
+            {
+                graphics.DrawLine(pen, tuple.Item1.X, tuple.Item1.Y, tuple.Item2.X, tuple.Item2.Y);
+            }
+        }
+
 
         public void Reset()
         {
@@ -125,6 +343,7 @@ namespace CirculosCercanos
                 circle.Visited = false;
             }
         }
+
         private bool CreatePath(Circle origin, Circle destination)
         {
             List<Point> path = new List<Point>();
@@ -137,15 +356,15 @@ namespace CirculosCercanos
             if (Math.Abs(origin.Y - destination.Y) > Math.Abs(origin.X - destination.X))
             {
                 b = origin.X;
-                m = (origin.X - destination.X == 0)
+                m = (origin.Y - destination.Y == 0)
                     ? 0.0f
                     : (float) (destination.X - origin.X) / (destination.Y - origin.Y);
-                
+
                 increment = (origin.Y < destination.Y) ? 1 : -1;
-                
+
                 while (!PointIsObstacle(x, y))
                 {
-                    y+= increment;
+                    y += increment;
                     x = (int) Math.Round(m * (y - origin.Y) + b);
                     path.Add(new Point(x, y));
                 }
@@ -153,13 +372,13 @@ namespace CirculosCercanos
             else
             {
                 b = origin.Y;
-                m = origin.Y - destination.Y == 0
+                m = origin.X - destination.X == 0
                     ? 0.0f
                     : (float) (destination.Y - origin.Y) / (destination.X - origin.X);
-                
+
                 increment = origin.X < destination.X ? 1 : -1;
-                
-                while(!PointIsObstacle(x, y))
+
+                while (!PointIsObstacle(x, y))
                 {
                     x += increment;
                     y = (int) Math.Round(m * (x - origin.X) + b);
@@ -174,17 +393,18 @@ namespace CirculosCercanos
                 {
                     reversedPath.Add(point);
                 }
+
                 origin.Paths.Add(destination.Id, path);
                 destination.Paths.Add(origin.Id, reversedPath);
-                
+
                 _outsideFlag = false;
                 return true;
             }
-            
+
             _outsideFlag = false;
             return false;
         }
-        
+
         private bool PointBelongsToCircle(int x, int y, Circle circle)
         {
             return Math.Pow(x - circle.X, 2) + Math.Pow(y - circle.Y, 2) <= Math.Pow(circle.R + 3, 2);
@@ -193,12 +413,12 @@ namespace CirculosCercanos
         private bool PointIsObstacle(int x, int y)
         {
             Color color = _bitmap.GetPixel(x, y);
-            if (isWhite(color) )
+            if (isWhite(color))
             {
                 _outsideFlag = true;
             }
-            
-            return _outsideFlag? !isWhite(color)  : !isGray(color);
+
+            return _outsideFlag ? !isWhite(color) : !isGray(color);
         }
 
         private bool isWhite(Color color)
@@ -210,7 +430,7 @@ namespace CirculosCercanos
         {
             return color.R == color.G && color.G == color.B;
         }
-        
+
         public void SetAgent(int id)
         {
             foreach (Circle circle in _circles)
@@ -218,7 +438,7 @@ namespace CirculosCercanos
                 circle.HasAgent = circle.Id == id;
             }
         }
-        
+
         public void SetDestiny(int id)
         {
             foreach (Circle circle in _circles)
@@ -227,5 +447,4 @@ namespace CirculosCercanos
             }
         }
     }
-
 }

@@ -22,6 +22,11 @@ namespace CirculosCercanos
             _id = id;
         }
 
+        public Point ToPoint()
+        {
+            return new Point(_x, _y);
+        }
+        
         public int Id
         {
             get => _id;

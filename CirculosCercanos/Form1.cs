@@ -71,7 +71,9 @@ namespace CirculosCercanos
                             circleTree.Nodes[i].Nodes.Add(adjacent.ToString());
                         }
                     }
+                    //_graph.CreateTrees(_bmpImage);
                     pictureBoxImage.Refresh();
+                    
                     infoLabel.Text = "Seleccione circulos de la ventana derecha y asignelos como agente o destino"; 
                 }
                 else
@@ -87,8 +89,8 @@ namespace CirculosCercanos
             {
                 Circle inicio = null;
                 Circle agente = null;
-                List<Circle> destinationList = _graph.FindDestination();
-                destinationList = _graph.animationList;
+                List<Circle> dfsResult = _graph.FindDestination(_indexDestino);
+                List<Circle>destinationList = _graph.animationList;
                 if (destinationList == null)
                 {
                     infoLabel.Text = "No Existe un camino entre esos dos circulos"; 
@@ -104,9 +106,9 @@ namespace CirculosCercanos
                     else
                     {
                         List<Point> path = agente.Paths[nextInPath.Id];
-                        for (int i = 0; i < path.Count; i += _bmpImage.Width / 75)
+                        for (int i = 0; i < path.Count; i += _bmpImage.Width / 175)
                         {
-                            _detector.DrawAgent(path[i]);
+                            _detector.DrawAgent(path[i], _indexDestino);
                             pictureBoxImage.Refresh();
                         }
 
