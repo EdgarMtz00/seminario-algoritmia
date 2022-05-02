@@ -118,7 +118,10 @@ namespace CirculosCercanos
 
 
                 List<Circle> shortestPath = _graph.Bfs(inicio);
-                _detector.DrawGoldenEdges(shortestPath);
+                if (shortestPath != null)
+                {
+                    _detector.DrawGoldenEdges(shortestPath);
+                }
                 pictureBoxImage.Refresh();
                 _graph.animationList.Clear();
             }
@@ -160,6 +163,15 @@ namespace CirculosCercanos
             btnAgente.Enabled = true;
             btnDestino.Enabled = true;
             _selectedIndex = e.Node.Index;
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_graph != null)
+            {
+                _graph.CreateTrees(_bmpImage);
+                pictureBoxImage.Refresh();
+            }
         }
     }
 }
